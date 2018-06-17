@@ -1044,7 +1044,9 @@ public final class Encoder implements Visitor {
 
     @Override
     public Object visitPrivateDeclaration(PrivateDeclaration ast, Object o) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        int plus = (Integer) ast.D.visit(this, o);
+        plus += (Integer) ast.D2.visit(this, o);
+        return plus;
     }
 
     @Override
