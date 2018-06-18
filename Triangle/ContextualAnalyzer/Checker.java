@@ -53,7 +53,7 @@ public final class Checker implements Visitor {
   public Object visitNothingCommand(NothingCommand ast, Object o) {
     return null;
   }
-  
+
   public Object visitEmptyCommand(EmptyCommand ast, Object o) {
     return null;
   }
@@ -101,10 +101,10 @@ public final class Checker implements Visitor {
     if (! eType1.equals(StdEnvironment.integerType)){
             reporter.reportError("Integer expression expected here", "", ast.E2.position);
     }
-    
-    idTable.openScope();// open the scope for what is going to be declare in the table 
+
+    idTable.openScope();// open the scope for what is going to be declare in the table
     VarDeclaration decl = (VarDeclaration) ast.I.visit(this, null);
-    
+
     if (! decl.T.equals(StdEnvironment.integerType)){
             reporter.reportError("Integer declaration expected here", "", ast.I.position);
     }
@@ -112,7 +112,7 @@ public final class Checker implements Visitor {
     ////////////// Check if the ID is not at the left side of assigment
     Command c = (Command) ast.C;
     ast.C.visit(this,null);
-     
+
     int resultado=0;
     if(c instanceof SequentialCommand){
         Command scq1 = ((SequentialCommand) ((Command) c)).C1;
@@ -129,7 +129,7 @@ public final class Checker implements Visitor {
         else{
             resultado= -1;
         }
-       
+
     }
     else if(c instanceof CallCommand){
         ActualParameterSequence cc=  ((CallCommand) c).APS;
@@ -140,7 +140,7 @@ public final class Checker implements Visitor {
                 resultado= 2;
             }
         }
-        
+
         else if(cc instanceof MultipleActualParameterSequence){
          VarActualParameter map = (VarActualParameter) ((SingleActualParameterSequence) cc).AP;
          SimpleVname svn= (SimpleVname) map.V;
@@ -159,11 +159,11 @@ public final class Checker implements Visitor {
     if(resultado == 2){
         reporter.reportError("Variable can not be passed by reference here", "", ast.C.position);
     }
-    
-    idTable.closeScope();// close the scope for what is going to be declare in the table 
+
+    idTable.closeScope();// close the scope for what is going to be declare in the table
     return null;
   }
-   
+
   // Expressions
 
   // Returns the TypeDenoter denoting the type of the expression. Does
@@ -308,14 +308,14 @@ public final class Checker implements Visitor {
 
   public Object visitFuncDeclaration(FuncDeclaration ast, Object o) {
     ast.T = (TypeDenoter) ast.T.visit(this, null);
-    
+
     if (o == null) {
         idTable.enter (ast.I.spelling, ast); // permits recursion
         if (ast.duplicated)
           reporter.reportError ("identifier \"%\" already declared",
                                 ast.I.spelling, ast.position);
-    }    
-    
+    }
+
     idTable.openScope();
     ast.FPS.visit(this, null);
     TypeDenoter eType = (TypeDenoter) ast.E.visit(this, null);
@@ -333,7 +333,7 @@ public final class Checker implements Visitor {
           reporter.reportError ("identifier \"%\" already declared",
                                 ast.I.spelling, ast.position);
     }
-      
+
     idTable.openScope();
     ast.FPS.visit(this, null);
     ast.C.visit(this, null);
@@ -369,7 +369,7 @@ public final class Checker implements Visitor {
 
     return null;
   }
-  
+
   // Array Aggregates
 
   // Returns the TypeDenoter for the Array Aggregate. Does not use the
@@ -1019,47 +1019,16 @@ public final class Checker implements Visitor {
 
     @Override
     public Object visitPrivateDeclaration(PrivateDeclaration ast, Object o) {
-        int privateDeclarations = 0;
-        int privateInDeclarations = 0;
-        
-        privateDeclarations = sumPrivateDeclarations(ast.D, privateDeclarations);
-        privateInDeclarations = sumPrivateInDeclarations(ast.D2, privateInDeclarations);
-        
         idTable.openScope();
+        idTable.openPrivate();
+
         ast.D.visit(this, null);
+        idTable.closePrivate();
         ast.D2.visit(this, null);
-        idTable.closePrivateScope(privateDeclarations, privateInDeclarations);
+
+        idTable.closePrivateScope();
+
         return null;
-    }
-    
-    // Auxiliary function of visitPrivateDeclaration.
-    public int sumPrivateDeclarations(Declaration declaration_, int privateDeclarations) {
-        if (declaration_ instanceof SequentialDeclaration) {
-            sumPrivateDeclarations(((SequentialDeclaration) declaration_).D1, privateDeclarations);
-            privateDeclarations++;
-        } else if (declaration_ instanceof ProcFuncs) {
-            sumPrivateDeclarations(((ProcFuncs) declaration_).D1, privateDeclarations);
-            privateDeclarations++;
-        } else {
-            privateDeclarations++;
-        }
-        
-        return privateDeclarations;
-    }
-    
-    // Auxiliary function of visitPrivateDeclaration.
-    public int sumPrivateInDeclarations(Declaration declaration_, int privateInDeclarations) {
-        if (declaration_ instanceof SequentialDeclaration) {
-            sumPrivateInDeclarations(((SequentialDeclaration) declaration_).D1, privateInDeclarations);
-            privateInDeclarations++;
-        } else if (declaration_ instanceof ProcFuncs) {
-            sumPrivateInDeclarations(((ProcFuncs) declaration_).D1, privateInDeclarations);
-            privateInDeclarations++;
-        } else {
-            privateInDeclarations++;
-        }
-        
-        return privateInDeclarations;
     }
 
     public Object visitProcFuncs(ProcFuncs ast, Object o) {
@@ -1087,7 +1056,7 @@ public final class Checker implements Visitor {
         } else {
             addIdentifierFunc((FuncDeclaration) dec);
         }
-        
+
         //same process, but for visit functions declared
         // checks if dec is Proc or Func
         if (ast.D2 instanceof ProcDeclaration) {
@@ -1115,10 +1084,10 @@ public final class Checker implements Visitor {
 
     @Override
     public Object visitRecDeclaration(RecDeclaration ast, Object o) {
-        ast.D.visit(this, null); //visit ProcFuncs 
+        ast.D.visit(this, null); //visit ProcFuncs
         return null;
     }
-    
+
     // funciones auxiliares para agregar identificadores en procs y funcs
     public Object addIdentifierFunc(FuncDeclaration ast) {
         idTable.enter (ast.I.spelling, ast); // permits recursion
@@ -1127,7 +1096,7 @@ public final class Checker implements Visitor {
                     ast.I.spelling, ast.position);
         //ast.FPS.visit(this, true);
         ast.FPS.visit(this, true); // visit FPS without adding ident in idTable
-        ast.T = (TypeDenoter) ast.T.visit(this, null); 
+        ast.T = (TypeDenoter) ast.T.visit(this, null);
         return null;
     }
 
@@ -1139,7 +1108,7 @@ public final class Checker implements Visitor {
         ast.FPS.visit(this, true); // visit FPS without adding ident in idTable
         return null;
     }
-    
+
     public Object visitFunc (FuncDeclaration ast, Object o) {
         // almost same fucntion for visitFuncDeclaration but without inserting id to idTable
         idTable.openScope();
@@ -1151,7 +1120,7 @@ public final class Checker implements Visitor {
                 ast.I.spelling, ast.E.position);
         return null;
     }
-    
+
     public Object visitProc (ProcDeclaration ast, Object o) {
         // almost same fucntion for visitProcDeclaration but without inserting id to idTable
         idTable.openScope();
