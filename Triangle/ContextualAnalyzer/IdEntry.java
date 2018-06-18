@@ -18,6 +18,7 @@ import Triangle.AbstractSyntaxTrees.Declaration;
 
 public class IdEntry {
 
+  protected boolean private_ = false;
   protected String id;
   protected Declaration attr;
   protected int level;
@@ -28,6 +29,10 @@ public class IdEntry {
     this.attr = attr;
     this.level = level;
     this.previous = previous;
+  }
+
+  public void setPrivate_(boolean private_){
+    this.private_ = private_;
   }
 
 }
