@@ -356,7 +356,7 @@ public class Disassembler {
     try {
       objectFile = new FileInputStream (objectName);
       objectStream = new DataInputStream (objectFile);
-
+      System.out.println("prueba");
       addr = Machine.CB;
       while (!finished) {
         Machine.code[addr] = Instruction.read(objectStream);
