@@ -74,7 +74,7 @@ public final class IdentificationTable {
 
           else if (latest_.private_ == false) {
               latest_copy = latest_;
-              latest = latest.previous;
+              latest_ = latest_.previous;
           }
 
           else {
