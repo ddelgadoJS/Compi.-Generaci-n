@@ -12,6 +12,7 @@ public class VarInitialized extends Declaration {
 
     public Identifier I;
     public Expression E;
+    public TypeDenoter T;
 
     public Object visit(Visitor v, Object o) {
         return v.visitVarInitialized(this, o);

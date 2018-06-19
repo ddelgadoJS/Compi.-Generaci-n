@@ -1079,7 +1079,19 @@ public final class Encoder implements Visitor {
 
     @Override
     public Object visitVarInitialized(VarInitialized ast, Object o) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+      Frame frame = (Frame) o;
+      int extraSize;
+
+      extraSize = (Integer) ast.T.visit(this, null);
+      emit(Machine.PUSHop, 0, 0, extraSize);
+      ast.entity = new KnownAddress(Machine.addressSize, frame.level, frame.size);
+
+      writeTableDetails(ast);
+      Integer valSize = (Integer) ast.E.visit(this, frame);
+      SimpleVname sv = new SimpleVname(ast.I, ast.I.position);
+      encodeStore(sv, frame, valSize);
+
+      return extraSize;
     }
 
     @Override
@@ -1089,6 +1101,7 @@ public final class Encoder implements Visitor {
 
     @Override
     public Object visitPrivateDeclaration(PrivateDeclaration ast, Object o) {
+        Frame frame = (Frame) o;
         int plus = (Integer) ast.D.visit(this, o);
         plus += (Integer) ast.D2.visit(this, o);
         return plus;
