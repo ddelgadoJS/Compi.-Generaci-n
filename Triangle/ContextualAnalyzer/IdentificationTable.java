@@ -19,6 +19,7 @@ import java.util.ArrayList;
 
 public final class IdentificationTable {
 
+  private boolean private_ = false; // To know if a ProcFunc is private.
   private int level;
   private IdEntry latest;
 
@@ -33,6 +34,10 @@ public final class IdentificationTable {
   public void openScope () {
 
     level ++;
+  }
+
+  public void openPrivate() {
+      this.private_ = true;
   }
 
   // Closes the topmost level in the identification table, discarding
@@ -51,28 +56,32 @@ public final class IdentificationTable {
     this.level--;
     this.latest = entry;
   }
-  
-  // New
-  public void closePrivateScope (int privateDeclarations, int privateInDeclarations) {
-      IdEntry privateInDeclarations_ = this.latest;
-      
-      // "Private in" declarations
-      for (int i = privateInDeclarations; i > 1; i--) {
-          privateInDeclarations_.level--;
-          privateInDeclarations_ = privateInDeclarations_.previous;
+
+  public void closePrivate() {
+      this.private_ = false;
+  }
+
+  public void closePrivateScope () {
+      boolean controlVar = true;
+
+      IdEntry latest_copy = this.latest;
+      IdEntry latest_ = this.latest;
+
+      while (controlVar) {
+          if (latest_.previous == null) {
+              controlVar = false;
+          }
+
+          else if (latest_.private_ == false) {
+              latest_copy = latest_;
+              latest_ = latest_.previous;
+          }
+
+          else {
+              latest_ = latest_.previous;
+              latest_copy = latest_;
+          }
       }
-      
-      privateInDeclarations_.level--;
-      
-      IdEntry privateDeclarations_ = privateInDeclarations_.previous;
-      
-      // Private declarations
-      for (int i = privateDeclarations; i > 1; i--) {
-          privateDeclarations_ = privateDeclarations_.previous;
-      }
-      
-      privateInDeclarations_.previous = privateDeclarations_.previous;
-      this.level--;
   }
 
   // Makes a new entry in the identification table for the given identifier
@@ -99,6 +108,7 @@ public final class IdentificationTable {
     attr.duplicated = present;
     // Add new entry ...
     entry = new IdEntry(id, attr, this.level, this.latest);
+    entry.setPrivate_(this.private_);
     this.latest = entry;
   }
 
