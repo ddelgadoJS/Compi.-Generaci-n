@@ -998,11 +998,12 @@ public final class Checker implements Visitor {
 
     @Override
     public Object visitVarInitialized(VarInitialized ast, Object o) {
-      ast.T = (TypeDenoter) ast.E.visit(this, null);
-      idTable.enter(ast.I.spelling, ast);
-      if (ast.duplicated)
-          reporter.reportError("identifier \"%\" already declared",
-                  ast.I.spelling, ast.position);
+        ast.T = (TypeDenoter) ast.E.visit(this, null);
+        idTable.enter(ast.I.spelling, ast);
+        Declaration binding = (Declaration) ast.I.visit(this, null);
+        if (ast.duplicated)
+            reporter.reportError("identifier \"%\" already declared",
+                    ast.I.spelling, ast.position);
 
       return null;
     }
