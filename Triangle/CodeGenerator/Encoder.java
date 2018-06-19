@@ -92,7 +92,28 @@ public final class Encoder implements Visitor {
     emit(Machine.JUMPIFop, Machine.trueRep, Machine.CBr, loopAddr);
     return null;
   }
-
+  //For Command
+  public Object visitForCommand(ForCommand ast, Object o) {
+    Frame frame = (Frame) o;
+    int jumpAddr, loopAddr;
+    SimpleVname svn  = new SimpleVname (ast.I , ast.position);//se crea una varible de id para guardarla
+   
+    ast.E1.visit(this, frame);
+  //  encodeStore(svn, new Frame (frame, 1), 1);
+    jumpAddr = nextInstrAddr;
+    emit(Machine.JUMPop, 0, Machine.CBr, 0);
+    loopAddr = nextInstrAddr;
+    ast.C.visit(this, frame);
+ //   encodeFetch(svn, frame, 1);
+    emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.succDisplacement);
+//    encodeStore(svn, new Frame (frame, 1), 1);
+    patch(jumpAddr, nextInstrAddr);
+ //   encodeFetch(svn, frame, 1);
+    ast.E2.visit(this, frame);
+    emit(Machine.CALLop, Machine.SBr, Machine.PBr, Machine.leDisplacement);
+    emit(Machine.JUMPIFop, Machine.trueRep, Machine.CBr, loopAddr);
+    return null;
+  }
 
   // Expressions
   public Object visitArrayExpression(ArrayExpression ast, Object o) {
