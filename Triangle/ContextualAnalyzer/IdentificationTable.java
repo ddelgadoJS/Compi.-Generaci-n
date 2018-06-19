@@ -79,7 +79,7 @@ public final class IdentificationTable {
 
           else {
               latest_ = latest_.previous;
-              latest_copy = latest_;
+              latest_copy.previous = latest_;
           }
       }
   }
