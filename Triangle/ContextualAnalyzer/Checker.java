@@ -28,10 +28,12 @@ public final class Checker implements Visitor {
   public Object visitAssignCommand(AssignCommand ast, Object o) {
     TypeDenoter vType = (TypeDenoter) ast.V.visit(this, null);
     TypeDenoter eType = (TypeDenoter) ast.E.visit(this, null);
+    boolean patch = ((vType instanceof ArrayTypeDenoterStatic) && (eType instanceof ArrayTypeDenoter)) || ((vType instanceof ArrayTypeDenoter) && (eType instanceof ArrayTypeDenoterStatic)) || (vType.getClass() == eType.getClass()); //parche para asignar [n1, n2, n3] a una variable array nx..nx+2 of T
     if (!ast.V.variable)
       reporter.reportError ("LHS of assignment is not a variable", "", ast.V.position);
     if (! eType.equals(vType))
-      reporter.reportError ("assignment incompatibilty", "", ast.position);
+      if (!patch)
+        reporter.reportError ("assignment incompatibilty", "", ast.position);
     return null;
   }
 
