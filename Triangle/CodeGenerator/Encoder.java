@@ -1025,7 +1025,16 @@ public final class Encoder implements Visitor {
 
     @Override
     public Object visitArrayTypeDenoterStatic(ArrayTypeDenoterStatic ast, Object o) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        int typeSize;
+        if (ast.entity == null) {
+            int elemSize = (Integer) ast.T.visit(this, null);
+            int campos = Integer.parseInt(ast.IL2.spelling) - Integer.parseInt(ast.IL.spelling) + 1;
+            typeSize = campos * elemSize;
+            ast.entity = new TypeRepresentation(typeSize);
+            writeTableDetails(ast);
+        } else
+            typeSize = ast.entity.size;
+        return typeSize;
     }
 
     @Override
