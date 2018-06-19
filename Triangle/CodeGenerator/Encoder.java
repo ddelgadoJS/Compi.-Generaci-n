@@ -1010,8 +1010,7 @@ public final class Encoder implements Visitor {
         Integer valSize = (Integer) ast.E.type.visit(this, null);
         emit(Machine.PUSHop, 0, 0, valSize);
 
-        ast.entity = new;
-        KnownAddress(Machine.addressSize, frame.level, frameSize);
+        ast.entity = new KnownAddress(Machine.addressSize, frame.level, frame.size);
 
         extraSize = ((Integer) ast.E.visit(this, null)).intValue();
 
