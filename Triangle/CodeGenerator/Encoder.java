@@ -968,7 +968,6 @@ public final class Encoder implements Visitor {
 
     @Override
     public Object visitPrivateDeclaration(PrivateDeclaration ast, Object o) {
-        Frame frame = (Frame) o;
         int plus = (Integer) ast.D.visit(this, o);
         plus += (Integer) ast.D2.visit(this, o);
         return plus;
@@ -976,7 +975,34 @@ public final class Encoder implements Visitor {
 
     @Override
     public Object visitProcFuncs(ProcFuncs ast, Object o) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        saveIDs(ast);
+        int quantity;
+        quantity = (Integer) ast.D1.visit(this, o);
+        quantity += (Integer) ast.D2.visit(this, o);
+        return quantity;
+    }
+
+    // Auxiliary method for visitProcFuncs.
+    public void saveIDs (ProcFuncs ast) {
+        if (ast.D1 instanceof ProcDeclaration || ast.D1 instanceof FuncDeclaration) {
+            Identifier i = ast.D1 instanceof ProcDeclaration ? ((ProcDeclaration) ast.D1).I : ((FuncDeclaration) ast.D1).I;
+
+            i.entity = new RecursiveProcFunc();
+        }
+
+        if (ast.D2 instanceof ProcDeclaration || ast.D2 instanceof FuncDeclaration) {
+            Identifier i = ast.D2 instanceof ProcDeclaration ? ((ProcDeclaration) ast.D2).I : ((FuncDeclaration) ast.D2).I;
+
+            i.entity = new RecursiveProcFunc();
+        }
+
+        if (ast.D1 instanceof ProcFuncs) {
+            saveIDs((ProcFuncs) ast.D1);
+        }
+
+        if (ast.D2 instanceof ProcFuncs) {
+            saveIDs((ProcFuncs) ast.D2);
+        }
     }
 
     @Override
@@ -989,3 +1015,4 @@ public final class Encoder implements Visitor {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }
+dsf
